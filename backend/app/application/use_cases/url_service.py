@@ -16,8 +16,8 @@ class URLService:
             code = encode(uuid4().int)
             try:
                 await self.repo.save({
-                    "originalUrl": original_url,
-                    "shortCode": code,
+                    "original_url": original_url,
+                    "short_code": code,
                 })
                 return code
             except DuplicateKeyError:
@@ -35,7 +35,7 @@ class URLService:
         if not data:
             return None
 
-        await self.cache.set(code, data["originalUrl"])
+        await self.cache.set(code, data["original_url"])
         await self.repo.increment(code)
 
-        return data["originalUrl"]
+        return data["original_url"]
