@@ -1,10 +1,9 @@
-
 from app.infrastructure.db.mongo import url_collection
-from datetime import datetime
+from datetime import datetime, timezone
 
 class URLRepository:
     async def save(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         data["clicks"] = 0
         await url_collection.insert_one(data)
         return data
