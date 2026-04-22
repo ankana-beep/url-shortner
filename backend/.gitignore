@@ -3,7 +3,8 @@
 node_modules/
 dist/
 logs/
-_pycache__/
+__pycache__/
 *.log
 *.tmp
 *.bak
+*.pyc

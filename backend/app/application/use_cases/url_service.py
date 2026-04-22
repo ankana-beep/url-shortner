@@ -1,6 +1,9 @@
+from uuid import uuid4
 
-import time
+from pymongo.errors import DuplicateKeyError
+
 from app.utils.base62 import encode
+
 
 class URLService:
     def __init__(self, repo, cache):
@@ -8,15 +11,20 @@ class URLService:
         self.cache = cache
 
     async def create(self, original_url):
-        unique_id = int(time.time() * 1000)
-        code = encode(unique_id)
+        # UUID4 is 128-bit random; base62 keeps it URL-friendly.
+        for _ in range(5):
+            code = encode(uuid4().int)
+            try:
+                await self.repo.save({
+                    "originalUrl": original_url,
+                    "shortCode": code,
+                })
+                return code
+            except DuplicateKeyError:
+                # Extremely unlikely; retry with a new UUID.
+                continue
 
-        await self.repo.save({
-            "originalUrl": original_url,
-            "shortCode": code
-        })
-
-        return code
+        raise RuntimeError("Failed to generate a unique short code")
 
     async def resolve(self, code):
         cached = await self.cache.get(code)
